@@ -1,0 +1,74 @@
+particle_system Space/Engine
+ {
+    material        Examples/Smoke
+    particle_width  3
+    particle_height 3
+    cull_each       false
+    quota           100
+    billboard_type  point
+ 
+    // Area emitter
+    emitter Point
+    {
+		position -0.1 0.08 -0.3
+        angle           30
+        emission_rate   100
+        time_to_live 	0.25
+        colour 1.0. 0.75 0.0 1.0
+    }
+	
+	    // Area emitter
+    emitter Point
+    {
+		position 0.1 0.08 -0.3
+        angle           30
+        emission_rate   100
+        time_to_live 	0.25
+        colour 1.0. 0.75 0.0 1.0
+    }
+ 
+    // Fader
+    affector ColourFader
+    {
+		red -2.0
+		green -2.0
+		blue -2.0
+		alpha -4.0
+    }
+	
+	affector Scaler
+	{
+		rate -5.0
+	}
+ }
+ 
+ particle_system Space/Rocket
+ {
+    material        Examples/Smoke
+    particle_width  1.5
+    particle_height 1.5
+    cull_each       false
+    quota           100
+    billboard_type  point
+ 
+    // Area emitter
+    emitter Point
+    {
+		position -0.1 0.1 -0.45
+        angle           30
+        emission_rate   100
+        time_to_live 	0.25
+        colour 0.75. 0.0 0.0 1.0
+    }
+ 
+    // Fader
+    affector ColourFader
+    {
+		alpha -4.0
+    }
+	
+	affector Scaler
+	{
+		rate 5.0
+	}
+ }

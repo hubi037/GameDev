@@ -1,0 +1,70 @@
+// hlsl Vertex shader definition
+vertex_program ShieldTexture_VS hlsl            
+{
+        // Look in this source file for shader code
+    source GameObjStandard.hlsl
+        // Use this function for the vertex shader            
+    entry_point main_plain_texture_vp    
+        // Compile the shader to vs_1_1 format    
+    target vs_2_0                    
+ 
+    // This block saves us from manually setting parameters in code
+        default_params                    
+    {
+                // Ogre will put the worldviewproj into our 'worldViewProj' parameter for us.
+        param_named_auto worldViewProj worldviewproj_matrix        
+                // Note that 'worldViewProj' is a parameter in the hlsl code.
+				
+    }
+}
+ 
+// hlsl Pixel shader definition
+fragment_program ShieldTexture_PS hlsl            
+{
+        // Look in this source file for shader code
+    source GameObjStandard.hlsl        
+        // Use this function for the pixel shader    
+    entry_point main_plain_texture_fp    
+        // Compile to ps_1_1 format    
+    target ps_2_0
+
+    default_params
+    {
+        // Specify a default value for a new parameter
+        // Note that we don't need to specify whether it's a pixel of vertex shader parameter
+        param_named colorModulate float4 1 0 0 0.5        
+    }	
+}
+ 
+material ShieldTexture
+{
+    // Material has one technique
+    technique                    
+    {
+        // This technique has one pass
+        pass                    
+        {
+			scene_blend alpha_blend
+			depth_write off
+			
+                        // Make this pass use the vertex shader defined above
+            vertex_program_ref ShieldTexture_VS    
+            {
+            }
+                        // Make this pass use the pixel shader defined above
+            fragment_program_ref ShieldTexture_PS    
+            {
+				param_named_auto   cameraPosition_OS         camera_position_object_space
+				param_named_auto colorModulate custom 1
+            }
+
+            texture_unit
+            {
+                // This pass will use this 2D texture as its input
+                texture shield2.png
+				//colour_op modulate
+				//cubic_texture shield.jpg shield.jpg shield.jpg shield.jpg shield.jpg shield.jpg separateUV		
+            }
+        }
+    }
+}
