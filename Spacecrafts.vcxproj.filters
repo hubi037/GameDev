@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\BaseApplication.cpp" />
+    <ClCompile Include="src\GameApplication.cpp" />
+    <ClCompile Include="src\LuaScriptManager.cpp" />
+    <ClCompile Include="src\MathExports.cpp" />
+    <ClCompile Include="src\OgreExports.cpp" />
+    <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\NavigationGraph.cpp">
+      <Filter>pathfinding</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpacecraftController.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HumanController.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AIController.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Spacecraft.cpp">
+      <Filter>gameobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rocket.cpp">
+      <Filter>gameobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Wall.cpp">
+      <Filter>gameobjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DebugDisplay.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DebugOverlay.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NavigationNode.cpp">
+      <Filter>pathfinding</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Connection.cpp">
+      <Filter>pathfinding</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\BaseApplication.h" />
+    <ClInclude Include="include\GameApplication.h" />
+    <ClInclude Include="include\LuaScriptManager.h" />
+    <ClInclude Include="include\MathExports.h" />
+    <ClInclude Include="include\OgreExports.h" />
+    <ClInclude Include="include\Resource.h" />
+    <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\NavigationGraph.h">
+      <Filter>pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpacecraftController.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HumanController.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AIController.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ICollider.h">
+      <Filter>gameobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Spacecraft.h">
+      <Filter>gameobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rocket.h">
+      <Filter>gameobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Wall.h">
+      <Filter>gameobjects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DebugOverlay.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DebugDisplay.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Connection.h">
+      <Filter>pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="include\NavigationNode.h">
+      <Filter>pathfinding</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="pathfinding">
+      <UniqueIdentifier>{718ff9fb-d4df-4b71-a38b-4b65d28c960e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="controller">
+      <UniqueIdentifier>{ff2dfa2d-9f0c-48f8-bb99-a7d02d4fb2db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gameobjects">
+      <UniqueIdentifier>{40f675b8-18bc-48b2-94fa-5aa15bd76ebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debug">
+      <UniqueIdentifier>{777be6a4-49f3-4812-9701-5b04162519be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
