@@ -4,16 +4,17 @@
 #include "NavigationGraph.h"
 #include "NavigationNode.h"
 #include "Connection.h"
-#include "DebugDisplay.h"
+#include "NavigationGraphDebugDisplay.h"
 
 template<> NavigationGraph* Ogre::Singleton<NavigationGraph>::msSingleton = 0;
 
 
-NavigationGraph::NavigationGraph(int _x, int _z, int _width, int _height):
+NavigationGraph::NavigationGraph(SceneManager* sceneMgr, int _x, int _z, int _width, int _height):
 	origin((float) _x, 0.0f, (float) _z),
 	width(_width),
 	height(_height)
 {
+	mDebugDisplay = new NavigationGraphDebugDisplay(sceneMgr, 0.5f);
 	gridWidth = (int) floor(width / NavigationNode::NODE_SIZE);
 	gridDepth = (int) floor(height / NavigationNode::NODE_SIZE);
 	
@@ -44,6 +45,11 @@ NavigationGraph* NavigationGraph::getSingletonPtr(void)
 NavigationGraph& NavigationGraph::getSingleton(void)
 {  
     assert( msSingleton );  return ( *msSingleton );  
+}
+
+void NavigationGraph::setDebugDisplayEnabled(bool enable)
+{
+	mDebugDisplay->setEnabled(enable);
 }
 
 bool NavigationGraph::checkSpaceForNode(OgreBulletDynamics::DynamicsWorld* world, const Vector3& position) const
@@ -115,6 +121,8 @@ void NavigationGraph::calcGraph(OgreBulletDynamics::DynamicsWorld* world)
 			grid[x + z * gridWidth] = node;
 		}
 	}
+
+	debugDraw();
 }
 
 template<class T>
@@ -149,15 +157,23 @@ void NavigationGraph::debugDraw() const
 	{
 		if (grid[i] != NULL)
 		{
-			grid[i]->debugDraw();
+			grid[i]->debugDraw(mDebugDisplay);
 		}
 	}
+
+	mDebugDisplay->build();
 }
 
 std::vector<Vector3> NavigationGraph::calcPath(const Vector3& currentPosition, const Vector3& targetPosition)
 {
 	// implement a A*
 
+	NavigationNode* startNode = getNodeAt(currentPosition);
+	NavigationNode* endNode = getNodeAt(targetPosition);
+
 	std::vector<Vector3> path;
+	path.push_back(startNode->getCenter());
+	path.push_back(endNode->getCenter());
+
 	return path;
 }

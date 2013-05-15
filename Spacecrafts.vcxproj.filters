@@ -40,6 +40,9 @@
     <ClCompile Include="src\Connection.cpp">
       <Filter>pathfinding</Filter>
     </ClCompile>
+    <ClCompile Include="src\NavigationGraphDebugDisplay.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BaseApplication.h" />
@@ -86,6 +89,9 @@
     <ClInclude Include="include\NavigationNode.h">
       <Filter>pathfinding</Filter>
     </ClInclude>
+    <ClInclude Include="include\NavigationGraphDebugDisplay.h">
+      <Filter>debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="pathfinding">
@@ -100,5 +106,22 @@
     <Filter Include="debug">
       <UniqueIdentifier>{777be6a4-49f3-4812-9701-5b04162519be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="media">
+      <UniqueIdentifier>{d2301a51-08b5-4a47-a492-153620acb05d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="media\GameObjStandard.hlsl">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\shield.material">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\space.particle">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\spacecraft.material">
+      <Filter>media</Filter>
+    </None>
   </ItemGroup>
 </Project>

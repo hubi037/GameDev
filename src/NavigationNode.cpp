@@ -2,7 +2,7 @@
 
 #include "NavigationNode.h"
 #include "Connection.h"
-#include "DebugDisplay.h"
+#include "NavigationGraphDebugDisplay.h"
 
 const float NavigationNode::NODE_SIZE = 20.0f;
 const float NavigationNode::NODE_SIZE_HALF = NODE_SIZE / 2.0f;
@@ -12,12 +12,12 @@ NavigationNode::NavigationNode(const Vector3& _gridIdx, const Vector3& _center):
 	center(_center)
 {}
 
-void NavigationNode::debugDraw() const
+void NavigationNode::debugDraw(NavigationGraphDebugDisplay* debugDisplay) const
 {
-	DebugDisplay::getSingleton().drawLine(center - Vector3(-NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), center - Vector3( NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), ColourValue::White);
-	DebugDisplay::getSingleton().drawLine(center - Vector3( NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), center - Vector3( NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), ColourValue::White);
-	DebugDisplay::getSingleton().drawLine(center - Vector3( NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), center - Vector3(-NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), ColourValue::White);
-	DebugDisplay::getSingleton().drawLine(center - Vector3(-NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), center - Vector3(-NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), ColourValue::White);
+	debugDisplay->drawLine(center - Vector3(-NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), center - Vector3( NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), ColourValue::White);
+	debugDisplay->drawLine(center - Vector3( NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), center - Vector3( NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), ColourValue::White);
+	debugDisplay->drawLine(center - Vector3( NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), center - Vector3(-NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), ColourValue::White);
+	debugDisplay->drawLine(center - Vector3(-NODE_SIZE_HALF, 0.0f,  NODE_SIZE_HALF), center - Vector3(-NODE_SIZE_HALF, 0.0f, -NODE_SIZE_HALF), ColourValue::White);
 
 	for (int i = 0; i < (int) connections.size(); i++)
 	{
@@ -30,7 +30,7 @@ void NavigationNode::debugDraw() const
 			
 		if (a.x > b.x || a.z > b.z)	// avoid drawing the same connection 2 times. 
 		{
-			DebugDisplay::getSingleton().drawLine(a, b, ColourValue::Green);
+			debugDisplay->drawLine(a, b, ColourValue::Green);
 		}	
 	}
 }

@@ -101,8 +101,9 @@ void GameApplication::createScene(void)
 	createWalls();
 
 	// now create navigation graph
-	new NavigationGraph(-200, -200, 400, 400);
+	new NavigationGraph(mSceneMgr, -500, -500, 1000, 1000);
 	NavigationGraph::getSingleton().calcGraph(mWorld);
+	NavigationGraph::getSingleton().setDebugDisplayEnabled(mShowNavigationGraph);
 
 	createSpacecrafts();
 }
@@ -192,11 +193,6 @@ bool GameApplication::frameStarted(const Ogre::FrameEvent& evt)
 
 void GameApplication::update(float delta)
 {
-	if (mShowDebugDraw && mShowNavigationGraph)
-	{
-		NavigationGraph::getSingleton().debugDraw();
-	}
-
 	// update controllers
 	for (size_t i = 0; i < mControllers.size(); i++)
 	{
@@ -312,6 +308,7 @@ bool GameApplication::keyReleased(const OIS::KeyEvent &arg)
 	if (arg.key == OIS::KC_2)
 	{
 		mShowNavigationGraph = !mShowNavigationGraph;
+		NavigationGraph::getSingleton().setDebugDisplayEnabled(mShowNavigationGraph);
 	}
 
 	return BaseApplication::keyReleased(arg);

@@ -102,6 +102,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\NavigationGraphDebugDisplay.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\DebugOverlay.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -160,6 +164,7 @@
     <ClInclude Include="include\BaseApplication.h" />
     <ClInclude Include="include\Connection.h" />
     <ClInclude Include="include\DebugDisplay.h" />
+    <ClInclude Include="include\NavigationGraphDebugDisplay.h" />
     <ClInclude Include="include\DebugOverlay.h" />
     <ClInclude Include="include\GameApplication.h" />
     <ClInclude Include="include\HumanController.h" />
@@ -176,6 +181,12 @@
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\Wall.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="media\GameObjStandard.hlsl" />
+    <None Include="media\shield.material" />
+    <None Include="media\space.particle" />
+    <None Include="media\spacecraft.material" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

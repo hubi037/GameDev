@@ -4,6 +4,7 @@
 using namespace Ogre;
 
 class Connection;
+class NavigationGraphDebugDisplay;
 
 class NavigationNode
 {
@@ -15,7 +16,7 @@ public:
 
 	NavigationNode(const Vector3& _gridIdx, const Vector3& _center);
 	
-	void debugDraw() const;
+	void debugDraw(NavigationGraphDebugDisplay* debugDisplay) const;
 
 	const Vector3& getCenter() const
 	{
