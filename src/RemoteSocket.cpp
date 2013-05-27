@@ -25,7 +25,6 @@ void RemoteSocket::handleInput()
 
         std::istrstream in(buf+sizeof(u_long), (size-sizeof(u_long)));
 
-		Spacecraft* craft = GameApplication::getSingleton().getSpacecraft(0);
-		craft->unserialize(in);
+		// TODO unserialize input
     }
 }
