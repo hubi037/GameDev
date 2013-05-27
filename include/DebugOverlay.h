@@ -1,9 +1,6 @@
  #ifndef __Debug_Text_h_
  #define __Debug_Text_h_
 
-#include <Ogre.h>
-#include <OgreSingleton.h>
-#include <OgreOverlaySystem.h>
 
 using namespace Ogre;
  

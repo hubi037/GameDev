@@ -43,6 +43,33 @@
     <ClCompile Include="src\NavigationGraphDebugDisplay.cpp">
       <Filter>debug</Filter>
     </ClCompile>
+    <ClCompile Include="src\ClientSocketManager.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NetListenSocket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NetSocket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BaseSocketManager.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BinaryPacket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameServerListenSocket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OgreConsole.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemoteSocket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerSocketManager.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BaseApplication.h" />
@@ -92,6 +119,33 @@
     <ClInclude Include="include\NavigationGraphDebugDisplay.h">
       <Filter>debug</Filter>
     </ClInclude>
+    <ClInclude Include="include\ClientSocketManager.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameServerListenSocket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\NetListenSocket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\NetSocket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BinaryPacket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BaseSocketManager.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OgreConsole.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RemoteSocket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ServerSocketManager.h">
+      <Filter>network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="pathfinding">
@@ -109,6 +163,9 @@
     <Filter Include="media">
       <UniqueIdentifier>{d2301a51-08b5-4a47-a492-153620acb05d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="network">
+      <UniqueIdentifier>{e2d86a11-acac-4136-b2fc-4dd10c7c31ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="media\GameObjStandard.hlsl">
@@ -121,6 +178,12 @@
       <Filter>media</Filter>
     </None>
     <None Include="media\spacecraft.material">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\console.material">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\console.fontdef">
       <Filter>media</Filter>
     </None>
   </ItemGroup>

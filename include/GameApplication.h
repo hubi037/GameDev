@@ -23,7 +23,14 @@ class DebugOverlay;
 class GameApplication : public BaseApplication, Ogre::Singleton<GameApplication>
 {
 public:
- 	GameApplication();
+	enum Mode
+	{
+		MODE_STANDALONE,
+		MODE_SERVER,
+		MODE_CLIENT
+	};
+
+ 	GameApplication(Mode mode, String address);
  
  	~GameApplication();
 
@@ -36,6 +43,8 @@ public:
 
 	/// releases a rocket (-> delete the rocket in the next frame)
 	void releaseRocket(Rocket* rocket);
+
+	Spacecraft* getSpacecraft(int idx);
  
  protected:
     virtual bool configure(void);
@@ -48,7 +57,11 @@ public:
 
 	virtual void createWalls(void);
 
+	virtual void setupNetwork(void);
+
 	void createDynamicWorld(Vector3 &gravityVector, AxisAlignedBox &bounds);
+
+	void udpateNetwork(float delta);
 
 	virtual bool frameStarted(const Ogre::FrameEvent& evt);
 	virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
@@ -82,6 +95,10 @@ private:
 
 	bool mShowDebugDraw;
 	bool mShowNavigationGraph;
+	float mSynchTimer;
+
+	Mode mMode;
+	String mAddress;
 
 	void update(float delta);
  };

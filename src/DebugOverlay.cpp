@@ -11,16 +11,6 @@ DebugOverlay::DebugOverlay()
 	ResourceGroupManager &resGroupMgr = ResourceGroupManager::getSingleton();
 	resGroupMgr.addResourceLocation("../media/fonts", "FileSystem");
 
-	FontManager &fontMgr = FontManager::getSingleton();
-	ResourcePtr font = fontMgr.create("MyFont","General");
-	// set as truetype
-
-	font->setParameter("type","truetype");
-	font->setParameter("source","consolab.ttf");
-	font->setParameter("size","26");
-	font->setParameter("resolution","96");
-	font->load();
-
     mOverlayMgr = Ogre::OverlayManager::getSingletonPtr();
  
     mOverlay = mOverlayMgr->create("overlay1");
@@ -45,7 +35,7 @@ void DebugOverlay::addTextBox(const std::string& ID,
     textBox->setPosition(x, y);
     textBox->setWidth(width);
     textBox->setHeight(height);
-	textBox->setParameter("font_name", "MyFont");
+	textBox->setParameter("font_name", "Console");
     textBox->setParameter("char_height", "16");
     textBox->setColour(color);
  

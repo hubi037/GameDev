@@ -51,6 +51,7 @@ protected:
     virtual void createScene(void) = 0; // Override me!
     virtual void destroyScene(void);
     virtual void createViewports(void);
+	virtual void setupNetwork(void) {}
     virtual void setupResources(void);
     virtual void createResourceListener(void);
     virtual void loadResources(void);

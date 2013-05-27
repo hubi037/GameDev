@@ -97,26 +97,42 @@ Spacecraft::Spacecraft(const Ogre::String& name, SceneManager* sceneMgr, OgreBul
 Spacecraft::~Spacecraft()
 {}
 
-Vector3 Spacecraft::getDirection()
+void Spacecraft::serialize(std::ostrstream& out)
+{
+	// TODO implement serialization of object to stream
+}
+
+
+void Spacecraft::unserialize(std::istrstream& in)
+{
+	// TODO implement deserialization of object to stream
+}
+
+Ogre::Quaternion Spacecraft::getOrientation() const
+{
+	return mBody->getWorldOrientation();
+}
+
+Vector3 Spacecraft::getDirection() const
 {
 	Quaternion orientation = mNode->getOrientation();
 	return orientation.zAxis();
 }
 
-float Spacecraft::getYaw()
+float Spacecraft::getYaw() const
 {
 	Quaternion orientation = mNode->getOrientation();
 	return orientation.getYaw().valueRadians();
 }
 
-Vector3 Spacecraft::getLinearVelocity()
+Vector3 Spacecraft::getLinearVelocity() const
 {
 	Vector3 vel = mBody->getLinearVelocity();
 	vel.y = 0.0f;
 	return vel;
 }
 
-float Spacecraft::getAngularVelocity()
+float Spacecraft::getAngularVelocity() const
 {
 	btRigidBody* rb = mBody->getBulletRigidBody();
 	return rb->getAngularVelocity().y();

@@ -26,6 +26,12 @@ public:
 
 	virtual ~Spacecraft();
 
+	/// Serializes the object into a stream
+	void serialize(std::ostrstream& out);
+
+	/// Unserializes the object from a stream
+	void unserialize(std::istrstream& in);
+
 	/// returns the position of the spacecraft.
 	Ogre::Vector3 getPosition()
 	{
@@ -57,17 +63,20 @@ public:
 	}
 
 	/// returns the direction where the spacecraft is heading to.
-	Ogre::Vector3 getDirection();
+	Ogre::Vector3 getDirection() const;
+
+	/// returns the orientation of the spacecraft as quaternion.
+	Ogre::Quaternion getOrientation() const;
 
 	/// returns the yaw of the spacecraft in radian
-	float getYaw();
+	float getYaw() const;
 
 	/// returns the linear velocity of the spacecraft.
 	/// Note: y velocity is omitted since spacecraft mainly travel on the plane.
-	Ogre::Vector3 getLinearVelocity();
+	Ogre::Vector3 getLinearVelocity() const;
 
 	/// returns the angular velocity of the spacecraft.
-	float getAngularVelocity();
+	float getAngularVelocity() const;
 
 	/// sets the steering command of this spacecraft.
 	void setSteeringCommand(const Ogre::Vector3& linear, float angular);

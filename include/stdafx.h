@@ -10,12 +10,15 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
+#include <winsock2.h>
+#include <Mmsystem.h>
 
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <strstream>
 
 
 // TODO: reference additional headers your program requires here
@@ -32,6 +35,9 @@
 #include <OgreRenderWindow.h>
 #include <OgreEntity.h>
 #include <OgreWindowEventUtilities.h>
+#include <Ogre.h>
+#include <OgreSingleton.h>
+#include <OgreOverlaySystem.h>
 
 #include "OgreBulletDynamicsRigidBody.h"				 // for OgreBullet
 #include "Shapes/OgreBulletCollisionsStaticPlaneShape.h" // for static planes
@@ -39,5 +45,9 @@
 #include "Shapes/OgreBulletCollisionsSphereShape.h"
 #include "Shapes/OgreBulletCollisionsCylinderShape.h"
 
+
 #define SAFE_DELETE(p) {if(p) {delete (p); (p)=NULL;}}
 #define SAFE_DELETE_ARRAY(p) {if(p) {delete[] (p); (p)=NULL;}}
+
+using std::tr1::shared_ptr;
+using std::tr1::weak_ptr;

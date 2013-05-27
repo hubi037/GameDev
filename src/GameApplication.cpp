@@ -10,6 +10,7 @@
 #include "DebugDisplay.h"
 #include "GameApplication.h"
 
+#include "OgreConsole.h"
 #include "Spacecraft.h"
 #include "SpacecraftController.h"
 #include "HumanController.h"
@@ -21,7 +22,13 @@
 #include "LuaScriptManager.h"
 #include "NavigationGraph.h"
 
-//#define SHOW_CONFIG_DIALOG
+#include "ClientSocketManager.h"
+#include "GameServerListenSocket.h"
+#include "BaseSocketManager.h"
+#include "ServerSocketManager.h"
+#include "BinaryPacket.h"
+
+#define SHOW_CONFIG_DIALOG
 
 const float GameApplication::MAX_ROCKETS = 256;
 
@@ -37,7 +44,7 @@ GameApplication& GameApplication::getSingleton(void)
    return *msSingleton;  
 }
 
-GameApplication::GameApplication():
+GameApplication::GameApplication(Mode mode, String address):
 	mHumanController(NULL),
 	mRocketCounter(0),
 	mWorld(NULL),
@@ -45,7 +52,10 @@ GameApplication::GameApplication():
 	mDebugOverlay(NULL),
 	mScriptingManager(NULL),
 	mShowDebugDraw(false),
-	mShowNavigationGraph(false)
+	mShowNavigationGraph(false),
+	mSynchTimer(0.0f),
+	mMode(mode),
+	mAddress(address)
 {}
 
 GameApplication::~GameApplication()
@@ -80,7 +90,6 @@ GameApplication::~GameApplication()
 	SAFE_DELETE(mDebugDrawer);
 
 	SAFE_DELETE(mWorld);
-
 }
 
 void GameApplication::createScene(void)
@@ -96,6 +105,10 @@ void GameApplication::createScene(void)
 	DebugDisplay::getSingleton().setEnabled(false);
 
 	mDebugOverlay = new DebugOverlay();
+
+	new OgreConsole;
+	OgreConsole::getSingleton().init(mRoot);
+	OgreConsole::getSingleton().setVisible(false);
 
 	createDynamicWorld(Vector3(0.0f, -9.81f, 0.0f), AxisAlignedBox (Ogre::Vector3 (-10000, -10000, -10000), Ogre::Vector3 (10000,  10000,  10000)));
 	createWalls();
@@ -178,6 +191,28 @@ void GameApplication::createCamera(void)
     mCameraMan = new OgreBites::SdkCameraMan(mCamera);   // create a default camera controller
 }
 
+void GameApplication::setupNetwork(void)
+{
+	switch (mMode)
+	{
+		case MODE_STANDALONE:
+			break;
+		case MODE_SERVER:
+		{
+			// TODO create ServerSocketManager
+			//      and start listening
+			break;
+		}
+		case MODE_CLIENT:
+		{
+			// TODO create ClientSocketManager
+			//      and connect to server
+			break;
+		}
+	}
+}
+
+
 bool GameApplication::frameStarted(const Ogre::FrameEvent& evt)
 {
    bool ret = BaseApplication::frameStarted(evt);
@@ -189,10 +224,47 @@ bool GameApplication::frameStarted(const Ogre::FrameEvent& evt)
    DebugDisplay::getSingleton().build();
    return ret;
 }
+
+void GameApplication::udpateNetwork(float delta)
+{
+	switch (mMode)
+	{
+		case MODE_STANDALONE:
+		{
+			break;
+		}
+		case MODE_CLIENT:
+		{
+			BaseSocketManager::getSingleton().doSelect(10, true);
+			break;
+		}
+		case MODE_SERVER:
+		{
+			mSynchTimer += delta;
+
+			if (mSynchTimer > 1.0f/20.0f)
+			{
+				mSynchTimer = 0.0f;
+
+				std::ostrstream out;
+
+				// TODO serialize data
+
+				shared_ptr<BinaryPacket> pkt(new BinaryPacket(out.rdbuf()->str(), out.pcount()));
+
+				// TODO send to clients
+			}
+
+			BaseSocketManager::getSingleton().doSelect(10, true);
+		}
+	}
+}
  
 
 void GameApplication::update(float delta)
 {
+	udpateNetwork(delta);
+
 	// update controllers
 	for (size_t i = 0; i < mControllers.size(); i++)
 	{
@@ -311,6 +383,12 @@ bool GameApplication::keyReleased(const OIS::KeyEvent &arg)
 		NavigationGraph::getSingleton().setDebugDisplayEnabled(mShowNavigationGraph);
 	}
 
+	if (arg.key == OIS::KC_3)
+	{
+		OgreConsole& console = OgreConsole::getSingleton();
+		console.setVisible(!console.isVisible());
+	}
+
 	return BaseApplication::keyReleased(arg);
 }
 
@@ -333,6 +411,13 @@ void GameApplication::releaseRocket(Rocket* rocket)
 	mRockets.remove(rocket);
 	mReleasedRockets.push_back(rocket);
 }
+
+
+Spacecraft* GameApplication::getSpacecraft(int idx)
+{
+	Spacecraft* craft = mSpacecrafts[0];
+	return craft;
+}
  
  
 bool GameApplication::configure(void)
@@ -346,6 +431,7 @@ bool GameApplication::configure(void)
         // If returned true, user clicked OK so initialise
         // Here we choose to let the system create a default rendering window by passing 'true'
         mWindow = mRoot->initialise(true);
+		mWindow->setDeactivateOnFocusChange(false);
  		// Let's add a nice window icon
         return true;
     }
@@ -359,6 +445,7 @@ bool GameApplication::configure(void)
  #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
  #define WIN32_LEAN_AND_MEAN
  #include "windows.h"
+ #include "shellapi.h"
  #endif
  
  #ifdef __cplusplus
@@ -367,12 +454,38 @@ bool GameApplication::configure(void)
  
  #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
  		INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+		{
+			LPWSTR* argvw;
+			int argc;
+			argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+			GameApplication::Mode mode = GameApplication::MODE_STANDALONE;
+			std::string address = "127.0.0.1";
+
+			if (argc > 1)
+			{
+				if (wcscmp(argvw[1], L"server") == 0)
+				{
+					mode = GameApplication::MODE_SERVER;
+				}
+				else if (wcscmp(argvw[1], L"client") == 0)
+				{
+					mode = GameApplication::MODE_CLIENT;
+
+					if (argc > 2)
+					{
+						std::wstring ws = std::wstring(argvw[2]);
+						address = std::string(ws.begin(), ws.end());
+					}
+				}
+			}
+
  #else
  		int main(int argc, char *argv[])
+		{
  #endif
- 		{
  			// Create application object
- 			GameApplication app;
+ 			GameApplication app(mode, address);
  
  			try {
  				app.go();
