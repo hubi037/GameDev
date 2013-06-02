@@ -3,6 +3,8 @@
 
 #include "BaseSocketManager.h"
 
+class BinaryPacket;
+
 /// Specialist version of the BaseSocketManager on the client.
 /// Tries to create a single socket that attaches to a known server.
 /// see http://code.google.com/p/gamecode4/
@@ -19,6 +21,8 @@ public:
     }
 
     bool connect();
+
+	void sendToServer(shared_ptr<BinaryPacket> packet);
 };
 
 #endif

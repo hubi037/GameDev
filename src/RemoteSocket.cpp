@@ -6,6 +6,7 @@
 #include "GameApplication.h"
 #include "Spacecraft.h"
 
+
 void RemoteSocket::handleInput()
 {
     NetSocket::handleInput();
@@ -20,11 +21,41 @@ void RemoteSocket::handleInput()
         int size = static_cast<int>(packet->getSize());
 
 		String logMsg = String("incoming: ");
-		logMsg.append(buf, size);
+		logMsg.append(buf+sizeof(u_long), size-sizeof(u_long));
 		LogManager::getSingleton().logMessage(logMsg);
 
         std::istrstream in(buf+sizeof(u_long), (size-sizeof(u_long)));
 
-		// TODO unserialize input
+		int type;
+		in >> type;
+
+		switch (type)
+		{
+		case MESSAGE_INPUT:
+			handleInputMsg(in);
+			break;
+		case MESSAGE_STATE:
+			handleStateMsg(in);
+			break;
+		}
     }
+}
+
+void RemoteSocket::handleInputMsg(std::istrstream& in)
+{
+	// TODO implement server handling of input
+}
+
+void RemoteSocket::handleStateMsg(std::istrstream& in)
+{
+	int count;
+	in >> count;
+
+	for (int i=0; i<count; i++)
+	{
+		int idx;
+		in >> idx;
+		Spacecraft* craft = GameApplication::getSingleton().getSpacecraft(idx);
+		craft->unserialize(in);
+	}
 }

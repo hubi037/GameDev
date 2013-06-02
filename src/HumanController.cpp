@@ -12,6 +12,16 @@ HumanController::HumanController(Spacecraft* spacecraft):
 	mMove(0.0f)
 {}
 
+void HumanController::serialize(std::ostrstream& out)
+{
+	// TODO add serialize
+}
+
+void HumanController::unserialize(std::istrstream& in)
+{
+	// TODO add unserialize
+}
+
 void HumanController::update(float delta)
 {
 	Vector3 direction = mSpacecraft->getDirection();

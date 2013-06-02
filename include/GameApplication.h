@@ -27,7 +27,9 @@ public:
 	{
 		MODE_STANDALONE,
 		MODE_SERVER,
-		MODE_CLIENT
+		MODE_CLIENT,
+
+		MODE_COUNT
 	};
 
  	GameApplication(Mode mode, String address);
@@ -45,6 +47,10 @@ public:
 	void releaseRocket(Rocket* rocket);
 
 	Spacecraft* getSpacecraft(int idx);
+	SpacecraftController* getController(int idx);
+
+	int getSpacecraftCount();
+
  
  protected:
     virtual bool configure(void);

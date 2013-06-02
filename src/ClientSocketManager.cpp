@@ -7,14 +7,22 @@ bool ClientSocketManager::connect()
     if (!BaseSocketManager::init())
         return false;
 
-    RemoteSocket *pSocket = new RemoteSocket;
+    RemoteSocket* remoteSocket = new RemoteSocket();
         
-    if (!pSocket->connect(getHostByName(mHostName), mPort) )
+    if (!remoteSocket->connect(getHostByName(mHostName), mPort) )
     {
-        SAFE_DELETE(pSocket);
+        SAFE_DELETE(remoteSocket);
         return false;
     }
     
-	addSocket(pSocket);
+	addSocket(remoteSocket);
     return true;
+}
+
+void ClientSocketManager::sendToServer(shared_ptr<BinaryPacket> packet)
+{
+	if (mSockList.size() > 0)
+	{
+		(*mSockList.begin())->send(packet);
+	}
 }

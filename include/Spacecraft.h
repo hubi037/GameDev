@@ -22,7 +22,7 @@ public:
 
 	/// constructs a new spacecraft.
 	/// name: The name of the spacecraft is used as id for the SceneNode and BulletObject.
-	Spacecraft(const Ogre::String& name, Ogre::SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture);
+	Spacecraft(int id, const Ogre::String& name, Ogre::SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture);
 
 	virtual ~Spacecraft();
 
@@ -71,6 +71,9 @@ public:
 	/// returns the yaw of the spacecraft in radian
 	float getYaw() const;
 
+	// returns the id of the spacecraft
+	int getId() const { return mId; }
+
 	/// returns the linear velocity of the spacecraft.
 	/// Note: y velocity is omitted since spacecraft mainly travel on the plane.
 	Ogre::Vector3 getLinearVelocity() const;
@@ -117,6 +120,8 @@ private:
 	float mHealth;
 	float mShieldTimer;
 	float mShootTimer;
+
+	int mId;
 
 	Ogre::String mName;
 

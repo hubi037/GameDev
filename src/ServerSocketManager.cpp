@@ -17,9 +17,9 @@ bool ServerSocketManager::start()
 
 void ServerSocketManager::broadcastToAllClients(shared_ptr<BinaryPacket> packet)
 {
-	for (SocketList::iterator i = mSockList.begin(); i != mSockList.end(); ++i)
+	for (SocketList::iterator it = mSockList.begin(); it != mSockList.end(); ++it)
     {
-		NetSocket *sock = *i;
+		NetSocket *sock = *it;
 
 		if ((dynamic_cast<RemoteSocket*>(sock)) != NULL)
 		{

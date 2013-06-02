@@ -17,7 +17,7 @@ const float Spacecraft::HEALTH_RECOVERY_RATE = 0.1f;
 
 static int offset = 0;
 
-Spacecraft::Spacecraft(const Ogre::String& name, SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture):
+Spacecraft::Spacecraft(int id, const Ogre::String& name, SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture):
 	mBody(NULL),
 	mNode(NULL),
 	mEngineParticleSystem(NULL),
@@ -28,6 +28,7 @@ Spacecraft::Spacecraft(const Ogre::String& name, SceneManager* sceneMgr, OgreBul
 	mHealth(1.0f),
 	mShieldTimer(0.0f),
 	mShootTimer(0.0f),
+	mId(id),
 	mName(name)
 {
 	Vector3 size(mRadius*2.0f, mRadius*2.0f, mRadius*2.0f);
@@ -99,13 +100,72 @@ Spacecraft::~Spacecraft()
 
 void Spacecraft::serialize(std::ostrstream& out)
 {
-	// TODO implement serialization of object to stream
+	Vector3 position = mBody->getWorldPosition();
+	Quaternion orientation = mBody->getWorldOrientation();
+	Vector3 linear = mBody->getLinearVelocity();
+	btVector3 angular = mBody->getBulletRigidBody()->getAngularVelocity();
+			
+	out << position.x << " ";
+	out << position.y << " ";
+	out << position.z << " ";
+
+	out << orientation.x << " ";
+	out << orientation.y << " ";
+	out << orientation.z << " ";
+	out << orientation.w << " ";
+
+	out << linear.x << " ";
+	out << linear.y << " ";
+	out << linear.z << " ";
+
+	out << angular.x() << " ";
+	out << angular.y() << " ";
+	out << angular.z() << " ";
 }
 
 
 void Spacecraft::unserialize(std::istrstream& in)
 {
-	// TODO implement deserialization of object to stream
+	Vector3 position;
+	Vector3 linear;
+	Vector3 angular;
+	Quaternion orientation;
+
+	in >> position.x;
+	in >> position.y;
+	in >> position.z;
+
+	in >> orientation.x;
+	in >> orientation.y;
+	in >> orientation.z;
+	in >> orientation.w;
+
+	in >> linear.x;
+	in >> linear.y;
+	in >> linear.z;
+
+	in >> angular.x;
+	in >> angular.y;
+	in >> angular.z;
+
+	float lerpPercentage = 0.0f;
+
+	// lerp between old and new values
+	position = Math::lerp(position, getPosition(), lerpPercentage);
+	linear = Math::lerp(linear, getLinearVelocity(), lerpPercentage);
+	btVector3 a = mBody->getBulletRigidBody()->getAngularVelocity();
+	angular = Math::lerp(angular, Vector3(a.x(), a.y(), a.z()),lerpPercentage);
+	orientation = Math::lerp(orientation, getOrientation(), lerpPercentage);
+
+	mBody->setTransform(OgreBulletCollisions::OgreBtConverter::to(position), OgreBulletCollisions::OgreBtConverter::to(orientation));
+	btTransform transform = mBody->getBulletRigidBody()->getCenterOfMassTransform();
+	transform.setOrigin(OgreBulletCollisions::OgreBtConverter::to(position));
+	transform.setRotation(OgreBulletCollisions::OgreBtConverter::to(orientation));
+
+	// apply new values
+	mBody->getBulletRigidBody()->setCenterOfMassTransform(transform);
+	mBody->getBulletRigidBody()->setLinearVelocity(OgreBulletCollisions::OgreBtConverter::to(linear));
+	mBody->getBulletRigidBody()->setAngularVelocity(OgreBulletCollisions::OgreBtConverter::to(angular));
 }
 
 Ogre::Quaternion Spacecraft::getOrientation() const

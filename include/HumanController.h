@@ -17,6 +17,9 @@ public:
 	bool keyPressed(const OIS::KeyEvent &arg);
     bool keyReleased(const OIS::KeyEvent &arg);
 
+	void serialize(std::ostrstream& out);
+	void unserialize(std::istrstream& in);
+
 private:
 	float mSteer;
 	float mMove;

@@ -27,6 +27,8 @@
 #include "BaseSocketManager.h"
 #include "ServerSocketManager.h"
 #include "BinaryPacket.h"
+#include "RemoteSocket.h"
+
 
 #define SHOW_CONFIG_DIALOG
 
@@ -90,6 +92,7 @@ GameApplication::~GameApplication()
 	SAFE_DELETE(mDebugDrawer);
 
 	SAFE_DELETE(mWorld);
+
 }
 
 void GameApplication::createScene(void)
@@ -166,17 +169,11 @@ void GameApplication::createWalls()
 
 void GameApplication::createSpacecrafts()
 {
-	Spacecraft* craft1 = new Spacecraft("craft1", mSceneMgr, mWorld, Vector3(0.0f, 20.0f, 0.0f), "spacecraft/blue");
-	Spacecraft* craft2 = new Spacecraft("craft2", mSceneMgr, mWorld, Vector3(20.0f, 20.0f, 0.0f), "spacecraft/red");
+	Spacecraft* craft1 = new Spacecraft(0, "craft1", mSceneMgr, mWorld, Vector3(0.0f, 20.0f, 0.0f), "spacecraft/blue");
+	Spacecraft* craft2 = new Spacecraft(1, "craft2", mSceneMgr, mWorld, Vector3(20.0f, 20.0f, 0.0f), "spacecraft/red");
 
 	mSpacecrafts.push_back(craft1);
 	mSpacecrafts.push_back(craft2);
-
-	mHumanController = new HumanController(craft1);
-	mControllers.push_back(mHumanController);
-
-	AIController* aiController = new AIController(craft2, craft1);
-	mControllers.push_back(aiController);
 }
 
 
@@ -193,20 +190,56 @@ void GameApplication::createCamera(void)
 
 void GameApplication::setupNetwork(void)
 {
+	Spacecraft* craft0 = getSpacecraft(0);
+	Spacecraft* craft1 = getSpacecraft(1);
+
 	switch (mMode)
 	{
 		case MODE_STANDALONE:
+		{
+			mHumanController = new HumanController(craft0);
+			mControllers.push_back(mHumanController);
+
+			AIController* aiController = new AIController(craft1, craft0);
+			mControllers.push_back(aiController);
 			break;
+		}
 		case MODE_SERVER:
 		{
-			// TODO create ServerSocketManager
-			//      and start listening
+			// TODO create controllers
+			
+			Ogre::LogManager::getSingletonPtr()->logMessage("start server");
+
+			ServerSocketManager* server = new ServerSocketManager();
+			
+			Ogre::LogManager::getSingletonPtr()->logMessage("starting as server");
+
+			if (!server->start())
+			{
+				Ogre::LogManager::getSingletonPtr()->logMessage("server: couldn't listen to port");
+			}
+			else
+			{
+				Ogre::LogManager::getSingletonPtr()->logMessage("server: start listening");
+			}
 			break;
 		}
 		case MODE_CLIENT:
 		{
-			// TODO create ClientSocketManager
-			//      and connect to server
+			// TODO create controllers
+
+			ClientSocketManager* client = new ClientSocketManager(mAddress, 3709);
+
+			Ogre::LogManager::getSingletonPtr()->logMessage("starting as client");
+
+			if (!client->connect())
+			{
+				Ogre::LogManager::getSingletonPtr()->logMessage("client: couldn't connect to game server");
+			}
+			else
+			{
+				Ogre::LogManager::getSingletonPtr()->logMessage("client: connected");
+			}
 			break;
 		}
 	}
@@ -235,6 +268,15 @@ void GameApplication::udpateNetwork(float delta)
 		}
 		case MODE_CLIENT:
 		{
+			mSynchTimer += delta;
+
+			if (mSynchTimer > 1.0f/20.0f)
+			{
+				mSynchTimer = 0.0f;
+
+				// TODO send input to server
+			}
+
 			BaseSocketManager::getSingleton().doSelect(10, true);
 			break;
 		}
@@ -259,6 +301,7 @@ void GameApplication::udpateNetwork(float delta)
 		}
 	}
 }
+
  
 
 void GameApplication::update(float delta)
@@ -331,10 +374,13 @@ void GameApplication::update(float delta)
 		mReleasedRockets.clear();
 	}
 
-	Spacecraft* craft = mHumanController->getSpacecraft();
+	if (mHumanController != NULL)
+	{
+		Spacecraft* craft = mHumanController->getSpacecraft();
 
-	// look at human craft.
-	mCamera->lookAt(mSpacecrafts[0]->getPosition());
+		// look at human craft.
+		mCamera->lookAt(mHumanController->getSpacecraft()->getPosition());
+	}
 }
 
 
@@ -355,7 +401,7 @@ bool GameApplication::frameEnded(const Ogre::FrameEvent& evt)
 
 bool GameApplication::keyPressed(const OIS::KeyEvent &arg)
 {
-	if (mHumanController->keyPressed(arg))
+	if ((mHumanController != NULL) && mHumanController->keyPressed(arg))
 	{
 		return true;
 	}
@@ -365,7 +411,7 @@ bool GameApplication::keyPressed(const OIS::KeyEvent &arg)
 
 bool GameApplication::keyReleased(const OIS::KeyEvent &arg)
 {
-	if (mHumanController->keyReleased(arg))
+	if ((mHumanController != NULL) && mHumanController->keyReleased(arg))
 	{
 		return true;
 	}
@@ -415,10 +461,23 @@ void GameApplication::releaseRocket(Rocket* rocket)
 
 Spacecraft* GameApplication::getSpacecraft(int idx)
 {
-	Spacecraft* craft = mSpacecrafts[0];
+	_ASSERT(idx >= 0 && idx < (int) mSpacecrafts.size());
+	Spacecraft* craft = mSpacecrafts[idx];
 	return craft;
 }
  
+
+SpacecraftController* GameApplication::getController(int idx)
+{
+	_ASSERT(idx >= 0 && idx < (int) mControllers.size());
+	SpacecraftController* controller = mControllers[idx];
+	return controller;
+}
+
+int GameApplication::getSpacecraftCount()
+{
+	return mControllers.size();
+}
  
 bool GameApplication::configure(void)
 {
@@ -430,7 +489,10 @@ bool GameApplication::configure(void)
     {
         // If returned true, user clicked OK so initialise
         // Here we choose to let the system create a default rendering window by passing 'true'
-        mWindow = mRoot->initialise(true);
+
+		const String titles[] = { "Spacecrafts", "SC-Client", "SC-Server" };
+        mWindow = mRoot->initialise(true, titles[mMode]);
+		
 		mWindow->setDeactivateOnFocusChange(false);
  		// Let's add a nice window icon
         return true;
