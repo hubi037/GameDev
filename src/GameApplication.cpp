@@ -28,6 +28,7 @@
 #include "ServerSocketManager.h"
 #include "BinaryPacket.h"
 #include "RemoteSocket.h"
+#include "RemoteHumanController.h"
 
 
 #define SHOW_CONFIG_DIALOG
@@ -206,7 +207,11 @@ void GameApplication::setupNetwork(void)
 		}
 		case MODE_SERVER:
 		{
-			// TODO create controllers
+			mHumanController = new HumanController(craft0);
+			mControllers.push_back(mHumanController);
+
+			RemoteHumanController* controller = new RemoteHumanController(craft1);
+			mControllers.push_back(controller);
 			
 			Ogre::LogManager::getSingletonPtr()->logMessage("start server");
 
@@ -226,7 +231,11 @@ void GameApplication::setupNetwork(void)
 		}
 		case MODE_CLIENT:
 		{
-			// TODO create controllers
+			RemoteHumanController* controller = new RemoteHumanController(craft0);
+			mControllers.push_back(controller);
+
+			mHumanController = new HumanController(craft1);
+			mControllers.push_back(mHumanController);
 
 			ClientSocketManager* client = new ClientSocketManager(mAddress, 3709);
 
@@ -274,7 +283,14 @@ void GameApplication::udpateNetwork(float delta)
 			{
 				mSynchTimer = 0.0f;
 
-				// TODO send input to server
+				std::ostrstream out;
+				out << RemoteSocket::MESSAGE_INPUT << " ";
+
+				out << mHumanController->getSpacecraft()->getId() << " ";
+				mHumanController->serialize(out);
+
+				shared_ptr<BinaryPacket> pkt(new BinaryPacket(out.rdbuf()->str(), out.pcount()));
+				((ClientSocketManager*) BaseSocketManager::getSingletonPtr())->sendToServer(pkt);
 			}
 
 			BaseSocketManager::getSingleton().doSelect(10, true);
@@ -282,21 +298,6 @@ void GameApplication::udpateNetwork(float delta)
 		}
 		case MODE_SERVER:
 		{
-			mSynchTimer += delta;
-
-			if (mSynchTimer > 1.0f/20.0f)
-			{
-				mSynchTimer = 0.0f;
-
-				std::ostrstream out;
-
-				// TODO serialize data
-
-				shared_ptr<BinaryPacket> pkt(new BinaryPacket(out.rdbuf()->str(), out.pcount()));
-
-				// TODO send to clients
-			}
-
 			BaseSocketManager::getSingleton().doSelect(10, true);
 		}
 	}
@@ -435,6 +436,11 @@ bool GameApplication::keyReleased(const OIS::KeyEvent &arg)
 		console.setVisible(!console.isVisible());
 	}
 
+	if (arg.key == OIS::KC_4)
+	{
+		mScriptingManager->runScriptFile("../../media/controller.lua");
+	}
+
 	return BaseApplication::keyReleased(arg);
 }
 
@@ -490,7 +496,7 @@ bool GameApplication::configure(void)
         // If returned true, user clicked OK so initialise
         // Here we choose to let the system create a default rendering window by passing 'true'
 
-		const String titles[] = { "Spacecrafts", "SC-Client", "SC-Server" };
+		const String titles[] = { "Spacecrafts", "SC-Server", "SC-Client" };
         mWindow = mRoot->initialise(true, titles[mMode]);
 		
 		mWindow->setDeactivateOnFocusChange(false);

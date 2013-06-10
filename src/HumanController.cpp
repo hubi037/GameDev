@@ -14,12 +14,14 @@ HumanController::HumanController(Spacecraft* spacecraft):
 
 void HumanController::serialize(std::ostrstream& out)
 {
-	// TODO add serialize
+	out << mMove << " ";
+	out << mSteer << " ";
 }
 
 void HumanController::unserialize(std::istrstream& in)
 {
-	// TODO add unserialize
+	in >> mMove;
+	in >> mSteer;
 }
 
 void HumanController::update(float delta)

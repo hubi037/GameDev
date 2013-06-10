@@ -5,6 +5,7 @@
 
 #include "GameApplication.h"
 #include "Spacecraft.h"
+#include "RemoteHumanController.h"
 
 
 void RemoteSocket::handleInput()
@@ -43,7 +44,35 @@ void RemoteSocket::handleInput()
 
 void RemoteSocket::handleInputMsg(std::istrstream& in)
 {
-	// TODO implement server handling of input
+	// process input
+	int id;
+
+	in >> id;
+
+	RemoteHumanController* controller = dynamic_cast<RemoteHumanController*> (GameApplication::getSingleton().getController(id));
+	_ASSERT(controller != NULL);
+
+	controller->unserialize(in);
+
+	// respond current state to client
+
+	std::ostrstream out;
+	out << MESSAGE_STATE << " ";
+
+	int count = GameApplication::getSingleton().getSpacecraftCount();
+
+	out << count << " ";
+
+	for (int i=0; i < count; i++)
+	{
+		Spacecraft* craft = GameApplication::getSingleton().getSpacecraft(i);
+
+		out << craft->getId() << " ";
+		craft->serialize(out);
+	}
+
+	shared_ptr<BinaryPacket> pkt(new BinaryPacket(out.rdbuf()->str(), out.pcount()));
+	send(pkt);
 }
 
 void RemoteSocket::handleStateMsg(std::istrstream& in)

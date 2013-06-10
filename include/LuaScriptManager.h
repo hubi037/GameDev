@@ -23,6 +23,19 @@ namespace scripting
 		bool hasGlobalFunction(const std::string& funcName);
 		luabind::object GetGlobalTable() const;
 		const lua_State* GetInterpreter() const;
+
+		template <class RET, class ARG1>
+		RET callFunction(const char* funcName, ARG1 arg1)
+		{
+			return luabind::call_function<RET>(mMasterState, funcName, arg1);
+		}
+
+		template <class RET, class ARG1, class ARG2>
+		RET callFunction(const char* funcName, ARG1 arg1, ARG2 arg2)
+		{
+			return luabind::call_function<RET>(mMasterState, funcName, arg1, arg2);
+		}
+
 	private:
 		lua_State* mMasterState;
 
