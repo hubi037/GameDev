@@ -58,7 +58,12 @@ GameApplication::GameApplication(Mode mode, String address):
 	mShowNavigationGraph(false),
 	mSynchTimer(0.0f),
 	mMode(mode),
-	mAddress(address)
+	mAddress(address),
+	mMapAnimation_open(NULL),
+	mMapAnimation_close(NULL),
+	mViewportAnimationValues(NULL),
+	mapIsOpen(false),
+	mapOpenDuration(0.5)
 {}
 
 GameApplication::~GameApplication()
@@ -98,6 +103,48 @@ GameApplication::~GameApplication()
 
 void GameApplication::createScene(void)
 {
+	mMapCamera = mSceneMgr->createCamera("MapCamera");
+
+// set up map animations
+	mViewportAnimationValues = mSceneMgr->createLight();
+	mViewportAnimationValues->setDiffuseColour(Ogre::ColourValue(0.7, 0.3, 0.0, 0.0));
+
+	// 'open' animation
+	Ogre::Animation* namedAnim1 = mSceneMgr->createAnimation("MapAnimation_open", mapOpenDuration);
+	namedAnim1->setInterpolationMode(Ogre::Animation::IM_SPLINE);
+
+	const Ogre::StringVector& valueNames = mViewportAnimationValues->getAnimableValueNames();
+
+	Ogre::AnimableValuePtr AVPtr = mViewportAnimationValues->createAnimableValue(valueNames[0]);
+	Ogre::NumericAnimationTrack* track_open = namedAnim1->createNumericTrack(0, AVPtr);
+	AVPtr->setValue(Ogre::ColourValue::Black);
+	AVPtr->setCurrentStateAsBaseValue();
+	track_open->createNumericKeyFrame(0)->setValue(Ogre::AnyNumeric(Ogre::ColourValue(0.7, 0.3, 0.0, 0.0)));
+	track_open->createNumericKeyFrame(mapOpenDuration)->setValue(Ogre::AnyNumeric(Ogre::ColourValue(0.0, 1.0, 0.0, 0.0)));
+
+	mMapAnimation_open = mSceneMgr->createAnimationState("MapAnimation_open");
+	mMapAnimation_open->setEnabled(false);
+	mMapAnimation_open->setLoop(false);
+	mMapAnimation_open->setTimePosition(0);
+
+	// 'close' animation
+	Ogre::Animation* namedAnim2 = mSceneMgr->createAnimation("MapAnimation_close", mapOpenDuration);
+	namedAnim2->setInterpolationMode(Ogre::Animation::IM_SPLINE);
+
+	AVPtr = mViewportAnimationValues->createAnimableValue(valueNames[0]);
+	Ogre::NumericAnimationTrack* track_close = namedAnim2->createNumericTrack(0, AVPtr);
+	AVPtr->setValue(Ogre::ColourValue::Black);
+	AVPtr->setCurrentStateAsBaseValue();
+	track_close->createNumericKeyFrame(0)->setValue(Ogre::AnyNumeric(Ogre::ColourValue(0.0, 1.0, 0.0, 0.0)));
+	track_close->createNumericKeyFrame(mapOpenDuration)->setValue(Ogre::AnyNumeric(Ogre::ColourValue(0.7, 0.3, 0.0, 0.0)));
+
+	mMapAnimation_close = mSceneMgr->createAnimationState("MapAnimation_close");
+	mMapAnimation_close->setEnabled(false);
+	mMapAnimation_close->setLoop(false);
+	mMapAnimation_close->setTimePosition(0);
+
+	mViewportAnimationValues->setDiffuseColour(Ogre::ColourValue(0.7, 0.3, 0.0, 0.0));
+
 	// Set ambient light
  	mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
  
@@ -123,6 +170,34 @@ void GameApplication::createScene(void)
 	NavigationGraph::getSingleton().setDebugDisplayEnabled(mShowNavigationGraph);
 
 	createSpacecrafts();
+
+	Ogre::LogManager::getSingletonPtr()->logMessage("running script file now");
+
+	mScriptingManager = new scripting::Manager();
+	mScriptingManager->runScriptFile("../../media/AIController.lua");
+
+	Ogre::Viewport* vpMiniMap = mWindow->addViewport(mMapCamera, 2, 0.7, 0.7, 0.3, 0.3);
+	vpMiniMap->setBackgroundColour(Ogre::ColourValue(0,0,0));
+
+	mMapCamera->setNearClipDistance(1.0f);
+	mMapCamera->setFarClipDistance(100000.0f);
+	mMapCamera->setPosition(0,200,0);
+	mMapCamera->lookAt(0,0,30);
+	mMapCamera->rotate(Ogre::Quaternion(Ogre::Radian(Ogre::Degree(180)), Ogre::Vector3::UNIT_Y));
+	mMapCamera->setProjectionType(Ogre::ProjectionType::PT_ORTHOGRAPHIC);
+	mMapCamera->setOrthoWindow(vpMiniMap->getActualWidth(), vpMiniMap->getActualHeight());
+
+	try
+	{
+		Ogre::CompositorManager::getSingleton().addCompositor(vpMiniMap, "Sepia");
+		Ogre::CompositorManager::getSingleton().setCompositorEnabled(vpMiniMap, "Sepia", true);
+	}
+	catch(...)
+	{
+		Ogre::LogManager::getSingleton().logMessage("Could not load compositor");
+	}
+
+	
 }
 
 void GameApplication::createDynamicWorld(Vector3 &gravityVector,AxisAlignedBox &bounds)
@@ -133,7 +208,7 @@ void GameApplication::createDynamicWorld(Vector3 &gravityVector,AxisAlignedBox &
  	 // add Debug info display tool
  	mDebugDrawer = new OgreBulletCollisions::DebugDrawer();
  	mDebugDrawer->setDrawWireframe(true);	// we want to see the Bullet containers
- 
+	
  	mWorld->setDebugDrawer(mDebugDrawer);
  	mWorld->setShowDebugShapes(false);		// enable it if you want to see the Bullet containers
  	SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode("debugDrawer", Ogre::Vector3::ZERO);
@@ -170,8 +245,8 @@ void GameApplication::createWalls()
 
 void GameApplication::createSpacecrafts()
 {
-	Spacecraft* craft1 = new Spacecraft(0, "craft1", mSceneMgr, mWorld, Vector3(0.0f, 20.0f, 0.0f), "spacecraft/blue");
-	Spacecraft* craft2 = new Spacecraft(1, "craft2", mSceneMgr, mWorld, Vector3(20.0f, 20.0f, 0.0f), "spacecraft/red");
+	Spacecraft* craft1 = new Spacecraft(0, "craft1", mSceneMgr, mWorld, Vector3(0.0f, 20.0f, 0.0f), "spacecraft/blue", Ogre::ColourValue(0.0, 0.0, 1.0, 1.0));
+	Spacecraft* craft2 = new Spacecraft(1, "craft2", mSceneMgr, mWorld, Vector3(20.0f, 20.0f, 0.0f), "spacecraft/red", Ogre::ColourValue(1.0, 0.0, 0.0, 1.0));
 
 	mSpacecrafts.push_back(craft1);
 	mSpacecrafts.push_back(craft2);
@@ -201,7 +276,7 @@ void GameApplication::setupNetwork(void)
 			mHumanController = new HumanController(craft0);
 			mControllers.push_back(mHumanController);
 
-			AIController* aiController = new AIController(craft1, craft0);
+			AIController* aiController = new AIController(craft1, craft0, mScriptingManager);
 			mControllers.push_back(aiController);
 			break;
 		}
@@ -239,6 +314,8 @@ void GameApplication::setupNetwork(void)
 
 			ClientSocketManager* client = new ClientSocketManager(mAddress, 3709);
 
+			Ogre::LogManager::getSingletonPtr()->logMessage("client address: " + mAddress);
+
 			Ogre::LogManager::getSingletonPtr()->logMessage("starting as client");
 
 			if (!client->connect())
@@ -257,6 +334,11 @@ void GameApplication::setupNetwork(void)
 
 bool GameApplication::frameStarted(const Ogre::FrameEvent& evt)
 {
+	if(mMapAnimation_open->getEnabled())
+		mMapAnimation_open->addTime(evt.timeSinceLastFrame);
+	if(mMapAnimation_close->getEnabled())
+		mMapAnimation_close->addTime(evt.timeSinceLastFrame);
+
    bool ret = BaseApplication::frameStarted(evt);
 
    float delta = evt.timeSinceLastFrame;
@@ -307,6 +389,16 @@ void GameApplication::udpateNetwork(float delta)
 
 void GameApplication::update(float delta)
 {
+
+	if(mMapAnimation_open->getTimePosition() >= mapOpenDuration)
+		mMapAnimation_open->setEnabled(false);
+	if(mMapAnimation_close->getTimePosition() >= mapOpenDuration)
+		mMapAnimation_close->setEnabled(false);
+
+	Ogre::Real val = mViewportAnimationValues->getDiffuseColour().r;
+	mMapCamera->getViewport()->setDimensions(val, val, 1-val, 1-val);
+
+
 	udpateNetwork(delta);
 
 	// update controllers
@@ -382,6 +474,17 @@ void GameApplication::update(float delta)
 		// look at human craft.
 		mCamera->lookAt(mHumanController->getSpacecraft()->getPosition());
 	}
+
+	if(mMode == MODE_SERVER || mMode == MODE_STANDALONE)
+	{
+		mMapCamera->setPosition(mSpacecrafts[0]->getPosition().x, 200, mSpacecrafts[0]->getPosition().z);
+	}
+	
+	else if( mMode == MODE_CLIENT)
+	{
+		mMapCamera->setPosition(mSpacecrafts[1]->getPosition().x, 200, mSpacecrafts[1]->getPosition().z);
+	}
+
 }
 
 
@@ -432,17 +535,40 @@ bool GameApplication::keyReleased(const OIS::KeyEvent &arg)
 
 	if (arg.key == OIS::KC_3)
 	{
-		OgreConsole& console = OgreConsole::getSingleton();
-		console.setVisible(!console.isVisible());
+		        
 	}
 
-	if (arg.key == OIS::KC_4)
+	if (arg.key == OIS::KC_M)
 	{
-		mScriptingManager->runScriptFile("../../media/controller.lua");
+		toggleMap();
 	}
+
 
 	return BaseApplication::keyReleased(arg);
 }
+
+void GameApplication::toggleMap()
+{
+	if(mMapAnimation_open->getEnabled() || mMapAnimation_close->getEnabled())
+		return;
+	
+	if(!mapIsOpen)
+	{
+		mMapAnimation_open->setEnabled(true);
+		mMapAnimation_close->setEnabled(false);
+		mMapAnimation_close->setTimePosition(0);
+	}
+	else
+	{
+		mMapAnimation_close->setEnabled(true);
+		mMapAnimation_open->setEnabled(false);
+		mMapAnimation_open->setTimePosition(0);
+	}
+
+	mapIsOpen = !mapIsOpen;
+}
+
+
 
 void GameApplication::createRocket(const Vector3& position, const Vector3& direction)
 {
@@ -521,10 +647,11 @@ bool GameApplication::configure(void)
  #endif
  
  #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
- 		INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+ 		//INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+		int main(int argc, char *argv[])
 		{
 			LPWSTR* argvw;
-			int argc;
+			//int argc;
 			argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
 
 			GameApplication::Mode mode = GameApplication::MODE_STANDALONE;

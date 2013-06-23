@@ -70,6 +70,7 @@
     <ClCompile Include="src\ServerSocketManager.cpp">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="src\RemoteHumanController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BaseApplication.h" />
@@ -146,6 +147,10 @@
     <ClInclude Include="include\ServerSocketManager.h">
       <Filter>network</Filter>
     </ClInclude>
+    <ClInclude Include="include\RemoteHumanController.h" />
+    <ClInclude Include="include\AStarNode.h">
+      <Filter>pathfinding</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="pathfinding">
@@ -186,5 +191,6 @@
     <None Include="media\console.fontdef">
       <Filter>media</Filter>
     </None>
+    <None Include="media\controller.lua" />
   </ItemGroup>
 </Project>

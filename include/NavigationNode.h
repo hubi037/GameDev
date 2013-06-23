@@ -20,7 +20,7 @@ public:
 
 	const Vector3& getCenter() const
 	{
-		return center;
+		return center + Vector3(NODE_SIZE_HALF, 0, NODE_SIZE_HALF);
 	}
 
 	std::vector<Connection*> getConnections()

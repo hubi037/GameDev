@@ -13,11 +13,11 @@ const float Spacecraft::MAX_ANGULAR_SPEED = Math::PI * 0.5f;
 const float Spacecraft::MAX_LINEAR_ACCELERATION = 5.0f * 60.0f;
 const float Spacecraft::MAX_ANGULAR_ACCELERATION = 20.0f * 60.0f;
 const float Spacecraft::SHOOT_COOLDOWN_DURATION = 0.25f;
-const float Spacecraft::HEALTH_RECOVERY_RATE = 0.1f;
+const float Spacecraft::HEALTH_RECOVERY_RATE = 0.05f;
 
 static int offset = 0;
 
-Spacecraft::Spacecraft(int id, const Ogre::String& name, SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture):
+Spacecraft::Spacecraft(int id, const Ogre::String& name, SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture, Ogre::ColourValue lightColor):
 	mBody(NULL),
 	mNode(NULL),
 	mEngineParticleSystem(NULL),
@@ -93,6 +93,14 @@ Spacecraft::Spacecraft(int id, const Ogre::String& name, SceneManager* sceneMgr,
 
 	DebugOverlay::getSingleton().addTextBox(mName, "", 0, offset, 200, 20, ColourValue(0.0f, 1.0f, 0.0f));
 	offset += 20;
+
+	Ogre::SceneNode* mPositionLightNode = mNode->createChildSceneNode(name + "_light");
+	mPositionLight = sceneMgr->createLight();
+	mPositionLight->setType(Light::LightTypes::LT_POINT);
+	mPositionLight->setDiffuseColour(lightColor);
+	mPositionLight->setPosition(0, 20, 0);
+	//mPositionLight->setPosition(getPosition());
+	mPositionLightNode->attachObject(mPositionLight);
 }
 
 Spacecraft::~Spacecraft()
@@ -247,8 +255,8 @@ void Spacecraft::update(float delta)
 	updateEffects(delta);
 
 	// Debug info
-	Vector3 vel = this->getLinearVelocity();
-	DebugOverlay::getSingleton().setTextf(mName, "%s: vel: %2.2f, angularvel: %2.2f", mName.c_str(), vel.length(), getAngularVelocity());
+	//Vector3 vel = this->getLinearVelocity();
+	//DebugOverlay::getSingleton().setTextf(mName, "%s: vel: %2.2f, angularvel: %2.2f", mName.c_str(), vel.length(), getAngularVelocity());
 }
 
 void Spacecraft::onCollision(ICollider* collider)

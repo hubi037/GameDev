@@ -1,0 +1,28 @@
+vertex_program depthNormalVPHLSL hlsl
+{
+ 	source DepthNormal.hlsl
+	entry_point depthNormal_vs
+	target vs_2_0 
+
+	default_params	
+	{
+	   param_named_auto wvpMat worldviewproj_matrix	
+   	}
+} 
+
+fragment_program depthNormalFPHLSL hlsl
+{
+	source DepthNormal.hlsl
+	entry_point depthNormal_ps
+	target ps_2_0
+}
+
+// Unified definition
+vertex_program depthNormalVP unified
+{
+	delegate depthNormalVPHLSL
+}
+fragment_program depthNormalFP unified
+{
+	delegate depthNormalFPHLSL
+}

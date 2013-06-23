@@ -62,6 +62,8 @@ bool BaseApplication::configure(void)
         // Here we choose to let the system create a default rendering window by passing 'true'
         mWindow = mRoot->initialise(true, "TutorialApplication Render Window");
 
+
+
         return true;
     }
     else
@@ -127,7 +129,7 @@ void BaseApplication::createFrameListener(void)
 	mInputContext.mKeyboard = mKeyboard;
 
     mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mInputContext, this);
-    mTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
+    //mTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
     //mTrayMgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
     mTrayMgr->hideCursor();
 
@@ -161,11 +163,13 @@ void BaseApplication::createViewports(void)
 {
     // Create one viewport, entire window
     Ogre::Viewport* vp = mWindow->addViewport(mCamera);
+	
     vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
 
     // Alter the camera aspect ratio to match the viewport
     mCamera->setAspectRatio(
         Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
+
 }
 //-------------------------------------------------------------------------------------
 void BaseApplication::setupResources(void)

@@ -22,7 +22,7 @@ public:
 
 	/// constructs a new spacecraft.
 	/// name: The name of the spacecraft is used as id for the SceneNode and BulletObject.
-	Spacecraft(int id, const Ogre::String& name, Ogre::SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture);
+	Spacecraft(int id, const Ogre::String& name, Ogre::SceneManager* sceneMgr, OgreBulletDynamics::DynamicsWorld* world, const Ogre::Vector3& position, const Ogre::String& texture, Ogre::ColourValue lightColor);
 
 	virtual ~Spacecraft();
 
@@ -111,6 +111,7 @@ private:
 	Ogre::SceneNode* mShield;
 	Ogre::Billboard* mHealthBillboard;
 	Ogre::Entity* mShieldEntity;
+	Ogre::Light* mPositionLight;
 
 	Ogre::Vector3 mLinearSteering;
 	float mAngularSteering;

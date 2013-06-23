@@ -85,6 +85,7 @@ namespace scripting
 	void Manager::runScriptFile(const std::string& file)
 	{
 		std::ifstream ifs(file);
+		Ogre::LogManager::getSingletonPtr()->logMessage("file opened");
 		runScript(std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>()));
 	}
 	//-----------------------------------------------------------------------
@@ -93,12 +94,15 @@ namespace scripting
 		std::strstream luaCodeReader;
 		luaCodeReader << code;
 
+		Ogre::LogManager::getSingletonPtr()->logMessage("in runScript()" + code);
 		if(lua_load( mMasterState, &Manager::chunkReader, &luaCodeReader, "LuaScriptManager" ) == 0) 
 		{
 			if (lua_pcall(mMasterState, 0, 0, 0) != 0)
 			{
+			Ogre::LogManager::getSingletonPtr()->logMessage("first if");
 				std::string errStr = lua_tostring(mMasterState, -1);
 #ifdef WIN32
+				Ogre::LogManager::getSingletonPtr()->logMessage("Scripting error..." + errStr);
 				MessageBox(NULL, errStr.c_str(), "Scripting error...", MB_ICONERROR | MB_OKCANCEL);
 #else
 				std::cout << "Scripting error: " << errStr << std::endl;
@@ -107,10 +111,11 @@ namespace scripting
 		}
 		else
 		{
+			Ogre::LogManager::getSingletonPtr()->logMessage("else");
 			// the top of the stack should be the error string
 			if (!lua_isstring(mMasterState, lua_gettop(mMasterState)))
 				return;
-
+			
 			// get the top of the stack as the error and pop it off
 			std::string errStr = lua_tostring(mMasterState, lua_gettop(mMasterState));
 			lua_pop(mMasterState, 1);

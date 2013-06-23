@@ -51,6 +51,7 @@ public:
 
 	int getSpacecraftCount();
 
+	Ogre::Camera* mMapCamera;
  
  protected:
     virtual bool configure(void);
@@ -75,6 +76,8 @@ public:
 
 	virtual bool keyPressed(const OIS::KeyEvent &arg);
     virtual bool keyReleased(const OIS::KeyEvent &arg);
+
+	void		toggleMap();
 
 private:
 	/// If number of Rockets reaches the limit, the oldest Rocket is deleted.
@@ -105,6 +108,12 @@ private:
 
 	Mode mMode;
 	String mAddress;
+
+	Ogre::AnimationState* mMapAnimation_open;
+	Ogre::AnimationState* mMapAnimation_close;
+	Ogre::Light* mViewportAnimationValues;
+	bool mapIsOpen;
+	float mapOpenDuration;
 
 	void update(float delta);
  };

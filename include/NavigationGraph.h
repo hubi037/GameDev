@@ -2,11 +2,14 @@
 #define __Navigation_Graph_h_
 
 #include <vector>
-
 using namespace Ogre;
 
 class NavigationNode;
 class NavigationGraphDebugDisplay;
+
+
+struct AStarNode;
+
 
 /// Stores a navigation graph of the static environment used for pathfinding.
 class NavigationGraph: public Ogre::Singleton<NavigationGraph>
@@ -39,6 +42,10 @@ private:
 
 	/// test if there is enough space for a node at the given position.
 	bool checkSpaceForNode(OgreBulletDynamics::DynamicsWorld* world, const Vector3& position) const;
+
+	// check if node was already visited
+	bool isInList(AStarNode& n, std::list<AStarNode>& list);
+	AStarNode* findInList(AStarNode& n, std::list<AStarNode>& list);
 	
 	Vector3 origin;
 

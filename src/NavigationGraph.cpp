@@ -1,10 +1,14 @@
 #include "stdafx.h"
 
 #include <stack>
+#include <queue>
+#include <map>
 #include "NavigationGraph.h"
 #include "NavigationNode.h"
 #include "Connection.h"
 #include "NavigationGraphDebugDisplay.h"
+
+#include "AStarNode.h"
 
 template<> NavigationGraph* Ogre::Singleton<NavigationGraph>::msSingleton = 0;
 
@@ -166,14 +170,131 @@ void NavigationGraph::debugDraw() const
 
 std::vector<Vector3> NavigationGraph::calcPath(const Vector3& currentPosition, const Vector3& targetPosition)
 {
-	// implement a A*
-
 	NavigationNode* startNode = getNodeAt(currentPosition);
 	NavigationNode* endNode = getNodeAt(targetPosition);
 
+	//std::cout << "start: " << startNode->getCenter() << std::endl;
+	//std::cout << "end: " << endNode->getCenter() << std::endl;
 	std::vector<Vector3> path;
-	path.push_back(startNode->getCenter());
-	path.push_back(endNode->getCenter());
+	if(startNode && endNode && (startNode != endNode))
+	{
+		// A* path finding
+		//std::priority_queue<AStarNode, std::vector<AStarNode>, std::greater<AStarNode>> open_list;
+		std::list<AStarNode> open_list;
+		std::list<AStarNode> closed_list;
 
+		AStarNode end = AStarNode(endNode, NULL, startNode, 0); 
+
+		open_list.push_back(end);
+
+		AStarNode curNode = end;
+		
+		while(!open_list.empty() && (curNode.node != startNode))
+		{
+			
+			curNode = open_list.front();
+			closed_list.push_back(curNode);
+			open_list.pop_front();
+
+			bool toSort = false;
+		
+			std::vector<Connection*> connections = curNode.node->getConnections();
+			for(int i=0; i<connections.size(); i++)
+			{
+				AStarNode n(connections[i]->getToNode(), &closed_list.back(), startNode, curNode.distToStart+1);
+				if(findInList(n, closed_list) == NULL)
+				{
+					AStarNode* nInOpenList = findInList(n, open_list);
+					if(nInOpenList != NULL)
+					{
+						if(n.distToStart < nInOpenList->distToStart )
+						{
+							nInOpenList->distToStart = n.distToStart;
+						}
+					}
+					else
+					{
+						open_list.push_back(n);
+						toSort = true;
+					}
+				}
+			}
+
+			if(toSort)
+			{
+				open_list.sort(AStarNode::compare);
+			}
+		}
+
+		//std::cout << "FLUUUHTSCH!!!" << std::endl;
+
+		AStarNode* curPathNode = &closed_list.back();
+
+		path.push_back(curPathNode->node->getCenter());
+		
+		while(curPathNode != NULL)
+		{
+			curPathNode = curPathNode->previousNode;
+
+			if(curPathNode != NULL)
+			{
+				//curPathNode->printNode();
+				path.push_back(curPathNode->node->getCenter());
+			}
+
+		}
+
+		if(path.size() < 2)
+		{
+			path.push_back(endNode->getCenter());
+		}
+		/*
+		NavigationNode* bestNeighbour = connections[0]->getToNode();
+		Vector3 toTarget = bestNeighbour->getCenter() - endNode->getCenter();
+		float minDist = toTarget.x + toTarget.z;
+		for(int i=1; i<connections.size(); i++)
+		{
+			toTarget = connections[i]->getToNode()->getCenter() - endNode->getCenter();
+			float dist = toTarget.x + toTarget.z;
+			if(dist <= minDist)
+			{
+				bestNeighbour = connections[i]->getToNode();
+				minDist = dist;
+			}
+		}
+
+	
+		path.push_back(startNode->getCenter());
+		path.push_back(endNode->getCenter());
+		*/
+	}
+	else
+	{
+		path.push_back(currentPosition);
+		path.push_back(targetPosition);
+	}
 	return path;
+}
+
+
+bool NavigationGraph::isInList(AStarNode& n, std::list<AStarNode>& _list )
+{
+	std::list<AStarNode>::iterator it = _list.begin();
+	for( ; it != _list.end(); it++)
+	{
+		if( (*it) == n)
+			return true;
+	}
+	return false;
+}
+
+AStarNode* NavigationGraph::findInList(AStarNode& n, std::list<AStarNode>& _list)
+{
+	std::list<AStarNode>::iterator it = _list.begin();
+	for( ; it != _list.end(); it++)
+	{
+		if( (*it) == n)
+			return &(*it);
+	}
+	return NULL;
 }

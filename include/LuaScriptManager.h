@@ -36,6 +36,12 @@ namespace scripting
 			return luabind::call_function<RET>(mMasterState, funcName, arg1, arg2);
 		}
 
+		template <class ARG1, class ARG2>
+		void callFunctionVoid(const char* funcName, ARG1 arg1, ARG2 arg2)
+		{
+			luabind::call_function<void>(mMasterState, funcName, arg1, arg2);
+		}
+
 	private:
 		lua_State* mMasterState;
 
